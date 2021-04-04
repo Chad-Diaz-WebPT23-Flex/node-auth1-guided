@@ -21,6 +21,7 @@ router.post("/login", async (req, res, next) => {
   try {
     const user = await users.findBy({ username }).first();
     if (user && bcrypt.compareSync(password, user.password)) {
+      req.session.user = user;
       res.status(200).json({ message: `welcome ${user.username}` });
     } else {
       const err = new Error();
@@ -31,6 +32,20 @@ router.post("/login", async (req, res, next) => {
   } catch (err) {
     console.log(err);
     next(err);
+  }
+});
+
+router.get("/logout", (req, res, next) => {
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        res.send("you can checkout anytime you like...");
+      } else {
+        res.send("so long and thanks for all the fish...");
+      }
+    });
+  } else {
+    res.end();
   }
 });
 
